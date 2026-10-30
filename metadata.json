@@ -1,0 +1,6 @@
+{
+  "name": "AICTE Security Deposit & FDR Management Portal",
+  "description": "Centralized regulatory platform for the AICTE Regulation Bureau to manage, verify, track, renew, and release institutional security deposits and Fixed Deposit Receipts (FDRs).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

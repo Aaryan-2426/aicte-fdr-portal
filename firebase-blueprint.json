@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "fdrRecord": {
+      "title": "FDR Record",
+      "description": "Statutory security deposit or Fixed Deposit Receipt maintained under AICTE regulatory custody.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "aicteApplicationNo": { "type": "string" },
+        "permanentInstituteId": { "type": "string" },
+        "instituteName": { "type": "string" },
+        "category": { "type": "string" },
+        "state": { "type": "string" },
+        "region": { "type": "string" },
+        "fdrNumber": { "type": "string" },
+        "bankName": { "type": "string" },
+        "branchName": { "type": "string" },
+        "ifscCode": { "type": "string" },
+        "fdrAmount": { "type": "number" },
+        "interestRate": { "type": "number" },
+        "issueDate": { "type": "string" },
+        "maturityDate": { "type": "string" },
+        "tenureMonths": { "type": "number" },
+        "lockInPeriodYears": { "type": "number" },
+        "jointName": { "type": "string" },
+        "lienMarked": { "type": "boolean" },
+        "autoRenewal": { "type": "boolean" },
+        "purpose": { "type": "string" },
+        "aphClause": { "type": "string" },
+        "status": { "type": "string" },
+        "verificationSource": { "type": "string" },
+        "createdBy": { "type": "string" }
+      },
+      "required": [
+        "id",
+        "permanentInstituteId",
+        "instituteName",
+        "fdrNumber",
+        "bankName",
+        "fdrAmount",
+        "maturityDate"
+      ]
+    },
+    "notification": {
+      "title": "Notification Alert",
+      "description": "Maturity warning, renewal escalation, or bank mismatch notification.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fdrId": { "type": "string" },
+        "fdrNumber": { "type": "string" },
+        "instituteName": { "type": "string" },
+        "type": { "type": "string" },
+        "severity": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "dispatchedAt": { "type": "string" },
+        "recipientEmail": { "type": "string" },
+        "recipientPhone": { "type": "string" },
+        "acknowledged": { "type": "boolean" }
+      },
+      "required": ["id", "fdrId", "title", "message"]
+    },
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Authenticated user profile and role within AICTE portal.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string" },
+        "instituteName": { "type": "string" },
+        "permanentInstituteId": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/fdrRecords/{fdrId}": {
+      "schema": "fdrRecord",
+      "description": "Collection of all institutional FDR instruments."
+    },
+    "/notifications/{notificationId}": {
+      "schema": "notification",
+      "description": "Collection of regulatory alerts and escalations."
+    },
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "User profiles with role assignment."
+    }
+  }
+}
