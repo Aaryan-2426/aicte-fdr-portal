@@ -293,6 +293,7 @@ export default function App() {
             records={records}
             onUpdateRecord={handleUpdateFDR}
             onSelectFDR={(rec) => setInspectedFDR(rec)}
+            userRole={currentRole}
           />
         )}
 

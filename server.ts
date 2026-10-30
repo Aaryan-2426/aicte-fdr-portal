@@ -353,6 +353,46 @@ app.post('/api/fdr/submit', (req, res) => {
   }
 });
 
+app.post('/api/fdr/release/discharge', (req, res) => {
+  try {
+    const { userRole, recordStatus, releaseStatus, fdrNumber } = req.body;
+
+    if (userRole !== 'central_director') {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: Only authorized AICTE Central Bureau officers can execute final discharge and revoke bank lien.',
+        code: 'AICTE_UNAUTHORIZED_DISCHARGE',
+      });
+    }
+
+    if (releaseStatus !== 'ro_recommended') {
+      return res.status(400).json({
+        success: false,
+        error: 'Prerequisite violation: Final discharge requires prior Scrutiny clearance and Regional Officer recommendation.',
+        code: 'AICTE_PREREQUISITE_FAILED',
+      });
+    }
+
+    if (recordStatus === 'released') {
+      return res.status(400).json({
+        success: false,
+        error: 'Conflict: FDR instrument is already discharged and lien revoked.',
+        code: 'AICTE_ALREADY_DISCHARGED',
+      });
+    }
+
+    const dischargeOrderNo = `AICTE/REG/FDR-REL/${new Date().getFullYear()}/${Date.now().toString().slice(-4)}`;
+    return res.json({
+      success: true,
+      dischargeOrderNo,
+      message: `Discharge order #${dischargeOrderNo} authorized by Central Bureau.`,
+    });
+  } catch (error: any) {
+    console.error('Release discharge backend error:', error);
+    return res.status(500).json({ success: false, error: error?.message || 'Server discharge verification failed' });
+  }
+});
+
 // Port configuration: inside AI Studio container Nginx listens on 8080 and proxies to 3000.
 // In standalone production environments (Render, Cloud Run standalone), PORT is used.
 const port = Number(

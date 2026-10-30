@@ -19,12 +19,14 @@ interface ReleaseRefundDeskProps {
   records: FDRRecord[];
   onUpdateRecord: (updatedRecord: FDRRecord) => void;
   onSelectFDR: (record: FDRRecord) => void;
+  userRole?: string;
 }
 
 export const ReleaseRefundDesk: React.FC<ReleaseRefundDeskProps> = ({
   records,
   onUpdateRecord,
   onSelectFDR,
+  userRole = 'central_director',
 }) => {
   const currentDate = '2026-10-30';
 
@@ -112,39 +114,69 @@ export const ReleaseRefundDesk: React.FC<ReleaseRefundDeskProps> = ({
     onUpdateRecord(updated);
   };
 
-  const handleBureauDirectorApproveAndDischarge = () => {
+  const handleBureauDirectorApproveAndDischarge = async () => {
     if (!selectedRecord || !selectedRecord.releaseDetails) return;
-    const dischargeOrderNo = `AICTE/REG/FDR-REL/${new Date().getFullYear()}/${Date.now().toString().slice(-4)}`;
 
-    const updated: FDRRecord = {
-      ...selectedRecord,
-      status: 'released',
-      lienMarked: false, // Lien released!
-      releaseDetails: {
-        ...selectedRecord.releaseDetails,
-        status: 'discharged',
-        bureauOfficer: 'Prof. Member Secretary, AICTE New Delhi',
-        bureauApprovalDate: currentDate,
-        bureauNotes: 'Final approval accorded by Competent Authority. Electronic Discharge Certificate generated.',
-        dischargeOrderNo,
-        dischargedDate: currentDate,
-      },
-      auditTrail: [
-        ...selectedRecord.auditTrail,
-        {
-          id: `aud-${Date.now()}`,
-          timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-          action: 'Official Discharge Order & Lien Revocation Executed',
-          userRole: 'AICTE Central Director',
-          userName: 'Member Secretary / Regulation Director',
-          details: `Order #${dischargeOrderNo} executed. Lien on ${selectedRecord.bankName} revoked. Deposit cleared for refund to institution.`,
+    if (userRole !== 'central_director') {
+      alert('Access Denied (403 Forbidden): Only authorized AICTE Central Bureau officers can execute final discharge and revoke bank lien.');
+      return;
+    }
+
+    if (selectedRecord.status === 'released' || selectedRecord.releaseDetails.status === 'discharged') {
+      alert('Conflict: This FDR has already been discharged.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/fdr/release/discharge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userRole,
+          recordStatus: selectedRecord.status,
+          releaseStatus: selectedRecord.releaseDetails.status,
+          fdrNumber: selectedRecord.fdrNumber,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Backend discharge authorization failed');
+      }
+
+      const dischargeOrderNo = data.dischargeOrderNo || `AICTE/REG/FDR-REL/${new Date().getFullYear()}/${Date.now().toString().slice(-4)}`;
+
+      const updated: FDRRecord = {
+        ...selectedRecord,
+        status: 'released',
+        lienMarked: false, // Lien released!
+        releaseDetails: {
+          ...selectedRecord.releaseDetails,
+          status: 'discharged',
+          bureauOfficer: 'Prof. Member Secretary, AICTE New Delhi',
+          bureauApprovalDate: currentDate,
+          bureauNotes: 'Final approval accorded by Competent Authority. Electronic Discharge Certificate generated.',
+          dischargeOrderNo,
+          dischargedDate: currentDate,
         },
-      ],
-    };
+        auditTrail: [
+          ...selectedRecord.auditTrail,
+          {
+            id: `aud-${Date.now()}`,
+            timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+            action: 'Official Discharge Order & Lien Revocation Executed',
+            userRole: 'AICTE Central Director',
+            userName: 'Member Secretary / Regulation Director',
+            details: `Order #${dischargeOrderNo} executed. Lien on ${selectedRecord.bankName} revoked. Deposit cleared for refund to institution.`,
+          },
+        ],
+      };
 
-    onUpdateRecord(updated);
-    setCertificateRecord(updated);
-    setShowCertificateModal(true);
+      onUpdateRecord(updated);
+      setCertificateRecord(updated);
+      setShowCertificateModal(true);
+    } catch (err: any) {
+      alert(`Authorization Error: ${err.message}`);
+    }
   };
 
   const handleOpenCertificate = (rec: FDRRecord) => {
