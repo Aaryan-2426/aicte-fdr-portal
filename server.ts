@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(express.json({ limit: '20mb' }));
+app.use(express.static(path.resolve(__dirname, 'public')));
 
 // Shared server-side Gemini client
 const ai = new GoogleGenAI({

@@ -16,6 +16,10 @@ import {
   ShieldCheck,
   Check,
   ArrowRight,
+  Sparkles,
+  Scan,
+  FileSearch,
+  CheckCheck,
 } from 'lucide-react';
 
 interface FDRSubmissionDeskProps {
@@ -65,6 +69,91 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
   // Submission result state
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
   const [detectedDiscrepancies, setDetectedDiscrepancies] = useState<string[]>([]);
+
+  // AI OCR Document Scanning State
+  const [showOcrScanner, setShowOcrScanner] = useState<boolean>(false);
+  const [isOcrProcessing, setIsOcrProcessing] = useState<boolean>(false);
+  const [ocrExtractedData, setOcrExtractedData] = useState<{
+    fdrNumber: string;
+    bankName: string;
+    branchName: string;
+    ifscCode: string;
+    amount: number;
+    issueDate: string;
+    maturityDate: string;
+    lienMarked: boolean;
+    jointName: string;
+    confidence: number;
+    anomalies: string[];
+  } | null>(null);
+
+  const handleRunOCR = (presetType?: 'clean_sbi' | 'hdfc_expansion' | 'pnb_short_term') => {
+    setIsOcrProcessing(true);
+    setTimeout(() => {
+      if (presetType === 'hdfc_expansion') {
+        setOcrExtractedData({
+          fdrNumber: 'FDR/HDFC/2026/882104',
+          bankName: 'HDFC Bank',
+          branchName: 'Connaught Place Branch, New Delhi',
+          ifscCode: 'HDFC0000003',
+          amount: 1500000,
+          issueDate: '2026-10-10',
+          maturityDate: '2036-10-10',
+          lienMarked: true,
+          jointName: 'Director, XYZ Society & Member Secretary, AICTE',
+          confidence: 99.2,
+          anomalies: [],
+        });
+      } else if (presetType === 'pnb_short_term') {
+        setOcrExtractedData({
+          fdrNumber: 'FDR/PNB/2026/440192',
+          bankName: 'Punjab National Bank',
+          branchName: 'Sector 17, Chandigarh',
+          ifscCode: 'PUNB0017000',
+          amount: 800000,
+          issueDate: '2026-10-15',
+          maturityDate: '2031-10-15',
+          lienMarked: false,
+          jointName: 'Principal, PQR College only',
+          confidence: 97.8,
+          anomalies: [
+            'Tenure is 5 years; APH requires mandatory 8 to 10 years lock-in period.',
+            'Lien not marked in favor of Member Secretary, AICTE.',
+            'Single ownership detected; joint mandate with AICTE is mandatory.',
+          ],
+        });
+      } else {
+        setOcrExtractedData({
+          fdrNumber: 'FDR/SBI/2026/778901',
+          bankName: 'State Bank of India',
+          branchName: 'Fort Commercial Branch, Mumbai',
+          ifscCode: 'SBIN0000300',
+          amount: 1000000,
+          issueDate: '2026-10-15',
+          maturityDate: '2036-10-15',
+          lienMarked: true,
+          jointName: 'Chairman, ABC Educational Society & Member Secretary, AICTE',
+          confidence: 99.6,
+          anomalies: [],
+        });
+      }
+      setIsOcrProcessing(false);
+    }, 800);
+  };
+
+  const handleApplyOCRData = () => {
+    if (!ocrExtractedData) return;
+    setFdrNumber(ocrExtractedData.fdrNumber);
+    setBankName(ocrExtractedData.bankName);
+    setBranchName(ocrExtractedData.branchName);
+    setIfscCode(ocrExtractedData.ifscCode);
+    setFdrAmount(ocrExtractedData.amount);
+    setIssueDate(ocrExtractedData.issueDate);
+    setMaturityDate(ocrExtractedData.maturityDate);
+    setJointName(ocrExtractedData.jointName);
+    setLienMarked(ocrExtractedData.lienMarked);
+    setShowOcrScanner(false);
+  };
 
   // Computed APH norm
   const aphNorm = calculateAPHNormRequiredFDR(category, purpose, isConcessionCategory);
@@ -434,12 +523,159 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
           {/* STEP 2: Instrument & Issuing Bank */}
           {currentStep === 2 && (
             <form onSubmit={handleNextToStep3} className="space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-slate-900">Step 2: FDR Instrument & Bank Endorsement</h3>
-                <p className="text-xs text-slate-500">
-                  Fixed Deposit must be in a Scheduled Commercial Bank with mandatory joint ownership and lien marked to Member Secretary, AICTE.
-                </p>
+              <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Step 2: FDR Instrument & Bank Endorsement</h3>
+                  <p className="text-xs text-slate-500">
+                    Fixed Deposit must be in a Scheduled Commercial Bank with mandatory joint ownership and lien marked to Member Secretary, AICTE.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOcrScanner(!showOcrScanner);
+                    if (!ocrExtractedData) handleRunOCR('clean_sbi');
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer self-start sm:self-auto shrink-0"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+                  <span>{showOcrScanner ? 'Close AI OCR' : '✨ Scan FDR PDF with AI OCR'}</span>
+                </button>
               </div>
+
+              {/* AI OCR Scanner & Anomaly Detector Box */}
+              {showOcrScanner && (
+                <div className="bg-linear-to-br from-amber-50/90 via-slate-50 to-indigo-50/50 border-2 border-amber-300 rounded-xl p-4 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
+                        <Scan className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                          <span>AI OCR Document Extractor & Anomaly Engine</span>
+                          <span className="bg-amber-200 text-amber-900 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">
+                            EasyOCR / PaddleOCR Simulation
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-600">
+                          Extracts FDR Number, Amount, Bank, IFSC, and verifies AICTE Member Secretary Joint Lien.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* OCR Test Sample Selector */}
+                  <div className="bg-white border border-amber-200 rounded-lg p-2.5">
+                    <div className="text-[11px] font-bold text-slate-700 mb-1.5">
+                      Select or Upload FDR PDF / Image to extract:
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleRunOCR('clean_sbi')}
+                        className="p-2 text-left bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded transition-colors cursor-pointer"
+                      >
+                        <div className="text-[10px] font-bold text-emerald-700">● Clean Compliant Preset</div>
+                        <div className="text-xs font-bold text-slate-900 mt-0.5">ABC College (SBI ₹10L)</div>
+                        <div className="text-[10px] text-slate-500">10-Yr Lock-in · AICTE Lien</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRunOCR('hdfc_expansion')}
+                        className="p-2 text-left bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-400 rounded transition-colors cursor-pointer"
+                      >
+                        <div className="text-[10px] font-bold text-blue-700">● Expansion Deposit</div>
+                        <div className="text-xs font-bold text-slate-900 mt-0.5">XYZ Tech (HDFC ₹15L)</div>
+                        <div className="text-[10px] text-slate-500">New Intake Division</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRunOCR('pnb_short_term')}
+                        className="p-2 text-left bg-rose-50/60 hover:bg-rose-50 border border-rose-200 hover:border-rose-400 rounded transition-colors cursor-pointer"
+                      >
+                        <div className="text-[10px] font-bold text-rose-700">⚠️ Anomaly Test Case</div>
+                        <div className="text-xs font-bold text-slate-900 mt-0.5">PQR College (PNB ₹8L)</div>
+                        <div className="text-[10px] text-rose-600">5-Yr Tenure · Missing AICTE Lien</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* OCR Extraction Result */}
+                  {isOcrProcessing ? (
+                    <div className="py-6 flex flex-col items-center justify-center text-slate-600 space-y-2">
+                      <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="text-xs font-medium">Scanning PDF text layer, extracting coordinates & OCR fields...</div>
+                    </div>
+                  ) : ocrExtractedData ? (
+                    <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <CheckCheck className="w-4 h-4 text-emerald-600" />
+                          <span className="text-xs font-bold text-slate-900">Extracted Document Data</span>
+                          <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">
+                            {ocrExtractedData.confidence}% Confidence
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleApplyOCRData}
+                          className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Auto-Fill Form</span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                        <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                          <div className="text-[10px] text-slate-500">FDR Receipt No:</div>
+                          <div className="font-mono font-bold text-slate-900">{ocrExtractedData.fdrNumber}</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                          <div className="text-[10px] text-slate-500">Deposit Amount:</div>
+                          <div className="font-bold text-emerald-700">{formatINR(ocrExtractedData.amount)}</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                          <div className="text-[10px] text-slate-500">Bank & Branch:</div>
+                          <div className="font-bold text-slate-900 truncate">{ocrExtractedData.bankName}</div>
+                        </div>
+
+                        <div className="bg-slate-50 p-2 rounded border border-slate-100">
+                          <div className="text-[10px] text-slate-500">Maturity Date:</div>
+                          <div className="font-mono font-bold text-slate-900">{ocrExtractedData.maturityDate}</div>
+                        </div>
+                      </div>
+
+                      {/* Anomaly Alerts if any */}
+                      {ocrExtractedData.anomalies.length > 0 ? (
+                        <div className="bg-rose-50 border border-rose-300 rounded p-2.5 text-xs text-rose-900 space-y-1">
+                          <div className="font-bold flex items-center gap-1.5 text-rose-800">
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                            <span>AI Anomaly Detection Flagged Discrepancies:</span>
+                          </div>
+                          <ul className="list-disc list-inside text-[11px] text-rose-700 space-y-0.5">
+                            {ocrExtractedData.anomalies.map((anom, i) => (
+                              <li key={i}>{anom}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded p-2 text-xs text-emerald-900 flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>
+                            Document validation cleared: 10-Year statutory lock-in and joint lien to Member Secretary AICTE verified.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
