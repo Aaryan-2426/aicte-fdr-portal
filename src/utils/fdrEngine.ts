@@ -197,12 +197,60 @@ export function validateIFSCCode(ifsc: string): boolean {
 }
 
 /**
+ * Validates that the FDR maturity date is at least requiredYears calendar years after the issue date.
+ * Handles leap years and date comparisons accurately in UTC / calendar days.
+ */
+export function validateMaturityPeriod(
+  issueDateStr: string,
+  maturityDateStr: string,
+  requiredYears: number = 10
+): {
+  isValid: boolean;
+  minMaturityDateStr: string;
+  error?: string;
+} {
+  if (!issueDateStr || !maturityDateStr) {
+    return { isValid: false, minMaturityDateStr: '', error: 'Issue date and maturity date are required.' };
+  }
+
+  const issueDate = new Date(issueDateStr);
+  const maturityDate = new Date(maturityDateStr);
+
+  if (isNaN(issueDate.getTime()) || isNaN(maturityDate.getTime())) {
+    return { isValid: false, minMaturityDateStr: '', error: 'Invalid date format.' };
+  }
+
+  const minMatDate = new Date(issueDate);
+  minMatDate.setFullYear(minMatDate.getFullYear() + requiredYears);
+
+  const matUtc = Date.UTC(maturityDate.getFullYear(), maturityDate.getMonth(), maturityDate.getDate());
+  const minMatUtc = Date.UTC(minMatDate.getFullYear(), minMatDate.getMonth(), minMatDate.getDate());
+
+  const minMatDateStr = minMatDate.toISOString().split('T')[0];
+
+  if (matUtc < minMatUtc) {
+    return {
+      isValid: false,
+      minMaturityDateStr: minMatDateStr,
+      error: `Maturity date (${maturityDateStr}) violates AICTE ${requiredYears}-year lock-in norm. Minimum permitted maturity date for issue date ${issueDateStr} is ${minMatDateStr}.`,
+    };
+  }
+
+  return {
+    isValid: true,
+    minMaturityDateStr: minMatDateStr,
+  };
+}
+
+/**
  * Detect discrepancies between institution-submitted FDR and independent bank API/master data
  */
 export function detectFDRDiscrepancies(
   submitted: {
     fdrAmount: number;
+    issueDate?: string;
     maturityDate: string;
+    lockInYears?: number;
     lienMarked: boolean;
     bankName: string;
     jointName?: string;
@@ -216,6 +264,15 @@ export function detectFDRDiscrepancies(
   }
 ): string[] {
   const flags: string[] = [];
+
+  // Check 0: Mandatory Minimum 10-Year Maturity Period check
+  if (submitted.issueDate && submitted.maturityDate) {
+    const requiredYears = submitted.lockInYears || 10;
+    const matCheck = validateMaturityPeriod(submitted.issueDate, submitted.maturityDate, requiredYears);
+    if (!matCheck.isValid) {
+      flags.push(`VIOLATION: ${matCheck.error}`);
+    }
+  }
 
   // Check 1: Mandatory Lien Marking
   if (!submitted.lienMarked) {

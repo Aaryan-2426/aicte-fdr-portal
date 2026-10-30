@@ -5,6 +5,7 @@ import {
   validateIFSCCode,
   formatINR,
   detectFDRDiscrepancies,
+  validateMaturityPeriod,
 } from '../utils/fdrEngine';
 import {
   FileText,
@@ -360,12 +361,24 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
       alert('Please enter a valid 11-character RBI IFSC code (e.g. SBIN0000300).');
       return;
     }
+    const matValidation = validateMaturityPeriod(issueDate, maturityDate, lockInYears);
+    if (!matValidation.isValid) {
+      alert(matValidation.error || `Maturity date violates AICTE ${lockInYears}-year lock-in requirement.`);
+      return;
+    }
     setCurrentStep(3);
   };
 
   const handleNextToStep4 = (e: React.FormEvent) => {
     e.preventDefault();
     setScrutinyError(null);
+
+    // Strictly enforce maturity period before scrutiny
+    const matValidation = validateMaturityPeriod(issueDate, maturityDate, lockInYears);
+    if (!matValidation.isValid) {
+      setScrutinyError(`Scrutiny Blocked: ${matValidation.error}`);
+      return;
+    }
 
     // Strictly enforce all 3 mandatory statutory documents
     const missing: string[] = [];
@@ -389,7 +402,9 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
     // Pre-submission discrepancy scrutiny
     const discrepancies = detectFDRDiscrepancies({
       fdrAmount,
+      issueDate,
       maturityDate,
+      lockInYears,
       lienMarked,
       bankName,
       jointName,
