@@ -97,14 +97,34 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
   };
 
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const handleSelectRolePreset = (role: UserRole) => {
     setSelectedRole(role);
     setEmailInput(rolePresets[role].email);
-    setPasswordInput('••••••••••••');
+    setPasswordInput('');
+    setLoginError(null);
+  };
+
+  const handleOpenLoginModalForRole = (role: UserRole) => {
+    handleSelectRolePreset(role);
+    setShowLoginModal(true);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
+
+    if (!passwordInput || passwordInput.trim().length === 0) {
+      setLoginError('Security password is required. (Enter your password or use test password: aicte@2026)');
+      return;
+    }
+
+    if (!emailInput || !emailInput.includes('@')) {
+      setLoginError('Please enter a valid official institutional email.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const preset = rolePresets[selectedRole];
@@ -112,8 +132,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       setIsSubmitting(false);
       setShowLoginModal(false);
       onLoginSuccess(selectedRole, preset.defaultTab);
-    } catch {
+    } catch (err: any) {
       setIsSubmitting(false);
+      setLoginError(err?.message || 'Authentication error. Please verify your credentials.');
     }
   };
 
@@ -127,15 +148,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     } catch {
       setIsSubmitting(false);
     }
-  };
-
-  const handleQuickDemoLogin = async (role: UserRole) => {
-    const preset = rolePresets[role];
-    setIsSubmitting(true);
-    await loginWithCredentials(role, preset.email, preset.title, preset.jurisdiction);
-    setIsSubmitting(false);
-    setShowLoginModal(false);
-    onLoginSuccess(role, preset.defaultTab);
   };
 
   const handlePublicSearch = (e: React.FormEvent) => {
@@ -284,8 +296,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <h3 className="text-base font-bold text-slate-900">Stakeholder Gateway</h3>
                     <p className="text-xs text-slate-500">Select your authorized regulatory portal role</p>
                   </div>
-                  <span className="text-[11px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200">
-                    Live Access
+                  <span className="text-[11px] font-bold px-2 py-0.5 bg-amber-50 text-amber-900 rounded border border-amber-300">
+                    🔒 Sign-in Required
                   </span>
                 </div>
 
@@ -295,7 +307,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     return (
                       <button
                         key={roleKey}
-                        onClick={() => handleQuickDemoLogin(roleKey)}
+                        onClick={() => handleOpenLoginModalForRole(roleKey)}
                         className="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-slate-900 hover:bg-slate-50/80 transition-all flex items-start gap-3 group cursor-pointer"
                       >
                         <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-white group-hover:shadow-xs transition-colors shrink-0">
@@ -313,8 +325,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                           <p className="text-[11px] text-slate-500 truncate mt-0.5">
                             {preset.jurisdiction}
                           </p>
-                          <div className="mt-1 text-[10px] font-mono text-slate-400 group-hover:text-slate-600 flex items-center gap-1">
-                            <span>Login: {preset.email}</span>
+                          <div className="mt-1 text-[10px] font-mono text-slate-500 group-hover:text-blue-700 flex items-center gap-1 font-medium">
+                            <span>Login ID: {preset.email} · Click to Sign In →</span>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-900 shrink-0 self-center transition-transform group-hover:translate-x-0.5" />
@@ -710,12 +722,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Error Notification */}
-            {authError && (
+            {(authError || loginError) && (
               <div className="bg-rose-50 border-b border-rose-200 p-3 text-xs text-rose-800 flex items-center justify-between">
-                <span>{authError}</span>
+                <span>{loginError || authError}</span>
                 <button
-                  onClick={clearAuthError}
-                  className="font-bold underline text-rose-900 ml-2"
+                  type="button"
+                  onClick={() => {
+                    setLoginError(null);
+                    clearAuthError();
+                  }}
+                  className="font-bold underline text-rose-900 ml-2 cursor-pointer"
                 >
                   Dismiss
                 </button>
@@ -771,28 +787,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <form onSubmit={handleLoginSubmit} className="space-y-3.5">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Official Email / Government ID
+                    Official Email / Government ID *
                   </label>
                   <input
                     type="email"
                     required
                     value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
+                    onChange={(e) => {
+                      setEmailInput(e.target.value);
+                      if (loginError) setLoginError(null);
+                    }}
                     className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:outline-hidden"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Security Password
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-700">
+                      Security Password *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPasswordInput('aicte@2026');
+                        setLoginError(null);
+                      }}
+                      className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline"
+                    >
+                      Fill Demo Password (aicte@2026)
+                    </button>
+                  </div>
                   <input
                     type="password"
                     required
+                    placeholder="Enter password to authenticate"
                     value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      if (loginError) setLoginError(null);
+                    }}
                     className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:outline-hidden"
                   />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Authentication required. Enter your password to access the {rolePresets[selectedRole].title} workspace.
+                  </p>
                 </div>
 
                 <div className="pt-2">

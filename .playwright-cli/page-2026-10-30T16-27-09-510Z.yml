@@ -1,0 +1,398 @@
+- generic [ref=e270]:
+  - banner [ref=e271]:
+    - generic [ref=e276]:
+      - generic [ref=e277]:
+        - generic [ref=e278]:
+          - button "AICTE" [ref=e279] [cursor=pointer]
+          - generic [ref=e281]:
+            - generic [ref=e282]: अखिल भारतीय तकनीकी शिक्षा परिषद · Ministry of Education, Govt. of India
+            - generic [ref=e284]:
+              - heading "Security Deposit & FDR Management Portal" [level=1] [ref=e285]
+              - generic [ref=e286]: Central Bureau (HQ)
+        - generic [ref=e287]:
+          - button "Public Portal" [ref=e288] [cursor=pointer]
+          - generic [ref=e290]:
+            - generic [ref=e291]: "Role:"
+            - combobox "Switch User Role" [ref=e292] [cursor=pointer]:
+              - option "AICTE Central Bureau (HQ New Delhi)" [selected]
+              - option "Regional Scrutiny Officer"
+              - option "Institute Representative / Principal"
+              - option "Scheduled Bank Verification Desk"
+          - generic [ref=e293]:
+            - generic [ref=e294]: A
+            - generic [ref=e295]:
+              - generic [ref=e296]: AICTE Central Bureau
+              - generic [ref=e297]: Authorized Session
+            - button "Sign out" [ref=e298] [cursor=pointer]
+          - button "View Alerts & Escalation Notifications" [ref=e302] [cursor=pointer]:
+            - generic [ref=e306]: "2"
+      - navigation [ref=e307]:
+        - button "Executive Dashboard" [ref=e308] [cursor=pointer]
+        - button "Central Repository" [ref=e309] [cursor=pointer]
+        - button "+ New Deposit Submission" [ref=e310] [cursor=pointer]
+        - button "Bank Verification Desk CBS API" [ref=e311] [cursor=pointer]:
+          - generic [ref=e312]: Bank Verification Desk
+          - generic [ref=e313]: CBS API
+        - button "Maturity Radar" [ref=e314] [cursor=pointer]
+        - button "Release & Refund" [ref=e315] [cursor=pointer]
+        - button "AI Advisory Hub" [ref=e316] [cursor=pointer]
+        - button "APH Norms" [ref=e321] [cursor=pointer]
+        - button "Audit Trail" [ref=e322] [cursor=pointer]
+  - main [ref=e323]:
+    - generic [ref=e324]:
+      - generic [ref=e325]:
+        - generic [ref=e326]:
+          - generic [ref=e327]:
+            - generic [ref=e328]:
+              - generic [ref=e329]: "Problem Statement ID: 26265"
+              - generic [ref=e330]: ·
+              - generic [ref=e331]: Approval Process Handbook (APH 2024–27)
+            - heading "AICTE – Security Deposit & FDR Management Dashboard" [level=2] [ref=e332]
+            - paragraph [ref=e333]: Centralized regulatory platform for the AICTE Regulation Bureau to manage, verify, track, renew, and release institutional security deposits and Fixed Deposit Receipts (FDRs).
+          - generic [ref=e334]:
+            - button "+ Submit FDR Document" [ref=e335] [cursor=pointer]
+            - button "Bank Verification Desk" [ref=e336] [cursor=pointer]
+        - generic [ref=e337]:
+          - generic [ref=e338]:
+            - generic [ref=e339]: "🎯 Live Hackathon Scenarios Walkthrough:"
+            - generic [ref=e341]: Click any scenario below to test end-to-end functionality
+          - generic [ref=e342]:
+            - button "Scenario 1 New FDR + AI OCR Upload PDF & Auto-fill" [ref=e343] [cursor=pointer]:
+              - generic [ref=e344]: Scenario 1
+              - generic [ref=e345]: New FDR + AI OCR
+              - generic [ref=e346]: Upload PDF & Auto-fill
+            - button "Scenario 2 Official Verification Review & Scrutiny outcome" [ref=e347] [cursor=pointer]:
+              - generic [ref=e348]: Scenario 2
+              - generic [ref=e349]: Official Verification
+              - generic [ref=e350]: Review & Scrutiny outcome
+            - button "Scenario 3 Maturity Alerts 30d / 15d / 7d countdown" [ref=e351] [cursor=pointer]:
+              - generic [ref=e352]: Scenario 3
+              - generic [ref=e353]: Maturity Alerts
+              - generic [ref=e354]: 30d / 15d / 7d countdown
+            - button "Scenario 4 Renewal History Old vs new FDR archive" [ref=e355] [cursor=pointer]:
+              - generic [ref=e356]: Scenario 4
+              - generic [ref=e357]: Renewal History
+              - generic [ref=e358]: Old vs new FDR archive
+            - button "Scenario 5 Discrepancy Detect Missing lien & bank clash" [ref=e359] [cursor=pointer]:
+              - generic [ref=e360]: Scenario 5
+              - generic [ref=e361]: Discrepancy Detect
+              - generic [ref=e362]: Missing lien & bank clash
+            - button "Scenario 6 Release / Refund 10-year tenure & discharge" [ref=e363] [cursor=pointer]:
+              - generic [ref=e364]: Scenario 6
+              - generic [ref=e365]: Release / Refund
+              - generic [ref=e366]: 10-year tenure & discharge
+      - generic [ref=e367]:
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - generic [ref=e370]: AICTE – FDR Management Dashboard · Illustrative National Metrics
+            - generic [ref=e371]: Live Regulatory Benchmark (Problem Statement Overview)
+          - generic [ref=e372]: ● Real-Time CBS Synchronized
+        - generic [ref=e373]:
+          - generic [ref=e374]:
+            - generic [ref=e375]: Total FDRs
+            - generic [ref=e376]: 1,250
+            - generic [ref=e377]: Institutional records active
+          - generic [ref=e378]:
+            - generic [ref=e379]: Verified FDRs
+            - generic [ref=e380]: "980"
+            - generic [ref=e381]: Bank confirmed with AICTE lien
+          - generic [ref=e382]:
+            - generic [ref=e383]: Expiring Soon
+            - generic [ref=e384]: "120"
+            - generic [ref=e385]: Within 30–60 day window
+          - generic [ref=e386]:
+            - generic [ref=e387]: Pending Verification
+            - generic [ref=e388]: "35"
+            - generic [ref=e389]: Under regional scrutiny
+        - generic [ref=e390]:
+          - generic [ref=e391]:
+            - generic [ref=e392]: Recent FDR Records (Illustrative Benchmark)
+            - generic [ref=e393]: Click any row to inspect complete dossier
+          - table [ref=e395]:
+            - rowgroup [ref=e396]:
+              - row [ref=e397]:
+                - columnheader "Institution" [ref=e398]
+                - columnheader "Amount" [ref=e399]
+                - columnheader "Bank Details" [ref=e400]
+                - columnheader "Status" [ref=e401]
+                - columnheader "Action" [ref=e402]
+            - rowgroup [ref=e403]:
+              - row [ref=e404] [cursor=pointer]:
+                - cell "ABC College of Engineering" [ref=e405]
+                - cell "₹10 Lakh (₹10,00,000)" [ref=e406]
+                - cell "State Bank of India (Nariman Point)" [ref=e407]
+                - cell "● Verified" [ref=e408]
+                - cell "View Dossier →" [ref=e410]
+              - row [ref=e411] [cursor=pointer]:
+                - cell "XYZ Institute of Technology" [ref=e412]
+                - cell "₹15 Lakh (₹15,00,000)" [ref=e413]
+                - cell "HDFC Bank (Connaught Place)" [ref=e414]
+                - cell "● Pending Scrutiny" [ref=e415]
+                - cell "Verify Now →" [ref=e417]
+              - row [ref=e418] [cursor=pointer]:
+                - cell "PQR College of Pharmacy" [ref=e419]
+                - cell "₹8 Lakh (₹8,00,000)" [ref=e420]
+                - cell "Punjab National Bank (Sector 17)" [ref=e421]
+                - cell "● Expiring (16d)" [ref=e422]
+                - cell "Renew / Alert →" [ref=e424]
+              - row [ref=e425] [cursor=pointer]:
+                - cell "LMN Institute of Management" [ref=e426]
+                - cell "₹12 Lakh (₹12,00,000)" [ref=e427]
+                - cell "Bank of Baroda (Alkapuri)" [ref=e428]
+                - cell "● Renewed" [ref=e429]
+                - cell "Audit History →" [ref=e431]
+      - generic [ref=e432]:
+        - generic [ref=e433]:
+          - generic [ref=e434]: Total Portfolio Value
+          - generic [ref=e435]: ₹3.23 Cr
+          - generic [ref=e436]: 14 technical institutions
+        - generic [ref=e437]:
+          - generic [ref=e438]: Active Lien In Force
+          - generic [ref=e439]: ₹1.17 Cr
+          - generic [ref=e440]: 5 verified instruments
+        - generic [ref=e441] [cursor=pointer]:
+          - generic [ref=e442]: Matured & Overdue
+          - generic [ref=e446]: "2"
+          - generic [ref=e447]: Requires renewal intimation
+        - generic [ref=e448] [cursor=pointer]:
+          - generic [ref=e449]: Expiring ≤ 30 Days
+          - generic [ref=e454]: "2"
+          - generic [ref=e455]: Critical countdown
+        - generic [ref=e456] [cursor=pointer]:
+          - generic [ref=e457]: Discrepant Flags
+          - generic [ref=e461]: "1"
+          - generic [ref=e462]: Lien or amount mismatch
+        - generic [ref=e463] [cursor=pointer]:
+          - generic [ref=e464]: Release In-Review
+          - generic [ref=e470]: "1"
+          - generic [ref=e471]: 10-year tenure review
+      - generic [ref=e472]:
+        - generic [ref=e473]:
+          - generic [ref=e474]:
+            - generic [ref=e475]:
+              - heading "Priority Action Workbench" [level=3] [ref=e476]
+              - paragraph [ref=e477]: Instruments requiring immediate regional intervention, renewal reminder, or discrepancy resolution.
+            - button "View All (14)" [ref=e478]
+          - generic [ref=e483]:
+            - generic [ref=e484] [cursor=pointer]:
+              - generic [ref=e485]:
+                - generic [ref=e486]:
+                  - generic [ref=e487]: FDR/CAN/BLR/2020/771029
+                  - generic [ref=e488]: ·
+                  - generic [ref=e489]: Canara Bank
+                  - generic [ref=e490]: ·
+                  - generic [ref=e491]: "ID: 1-38495021"
+                - generic [ref=e492]: Bangalore Institute of Management & Research
+                - generic [ref=e493]:
+                  - generic [ref=e494]: Management (PGDM/MBA)
+                  - generic [ref=e495]: ·
+                  - generic [ref=e496]: South-Western (Bengaluru)
+                  - generic [ref=e497]: ·
+                  - generic [ref=e498]: ₹25,00,000
+              - generic [ref=e499]:
+                - generic [ref=e500]:
+                  - text: Matured Overdue
+                  - generic [ref=e501]: 8 days past
+                - button "Inspect" [ref=e502]
+            - generic [ref=e503] [cursor=pointer]:
+              - generic [ref=e504]:
+                - generic [ref=e505]:
+                  - generic [ref=e506]: FDR/PNB/KOL/2016/552918
+                  - generic [ref=e507]: ·
+                  - generic [ref=e508]: Punjab National Bank
+                  - generic [ref=e509]: ·
+                  - generic [ref=e510]: "ID: 1-60293817"
+                - generic [ref=e511]: Vivekananda Polytechnic & Technical Campus
+                - generic [ref=e512]:
+                  - generic [ref=e513]: Engineering & Technology
+                  - generic [ref=e514]: ·
+                  - generic [ref=e515]: Eastern (Kolkata)
+                  - generic [ref=e516]: ·
+                  - generic [ref=e517]: ₹15,00,000
+              - generic [ref=e518]:
+                - generic [ref=e519]:
+                  - text: Matured Overdue
+                  - generic [ref=e520]: 201 days past
+                - button "Inspect" [ref=e521]
+            - generic [ref=e522] [cursor=pointer]:
+              - generic [ref=e523]:
+                - generic [ref=e524]:
+                  - generic [ref=e525]: FDR/PNB/2018/772190
+                  - generic [ref=e526]: ·
+                  - generic [ref=e527]: Punjab National Bank
+                  - generic [ref=e528]: ·
+                  - generic [ref=e529]: "ID: 1-44019283"
+                - generic [ref=e530]: PQR College of Pharmacy
+                - generic [ref=e531]:
+                  - generic [ref=e532]: Pharmacy
+                  - generic [ref=e533]: ·
+                  - generic [ref=e534]: North-Western (Chandigarh)
+                  - generic [ref=e535]: ·
+                  - generic [ref=e536]: ₹8,00,000
+              - generic [ref=e537]:
+                - generic [ref=e538]:
+                  - text: Expiring Soon
+                  - generic [ref=e539]: 16 days left
+                - button "Inspect" [ref=e540]
+            - generic [ref=e541] [cursor=pointer]:
+              - generic [ref=e542]:
+                - generic [ref=e543]:
+                  - generic [ref=e544]: FDR/PNB/DEL/2021/409112
+                  - generic [ref=e545]: ·
+                  - generic [ref=e546]: Punjab National Bank
+                  - generic [ref=e547]: ·
+                  - generic [ref=e548]: "ID: 1-20938475"
+                - generic [ref=e549]: Delhi College of Advanced Engineering & Technology
+                - generic [ref=e550]:
+                  - generic [ref=e551]: Engineering & Technology
+                  - generic [ref=e552]: ·
+                  - generic [ref=e553]: Northern (Kanpur)
+                  - generic [ref=e554]: ·
+                  - generic [ref=e555]: ₹35,00,000
+              - generic [ref=e556]:
+                - generic [ref=e557]:
+                  - text: Expiring Soon
+                  - generic [ref=e558]: 19 days left
+                - button "Inspect" [ref=e559]
+            - generic [ref=e560] [cursor=pointer]:
+              - generic [ref=e561]:
+                - generic [ref=e562]:
+                  - generic [ref=e563]: FDR/BOB/HYD/2023/120934
+                  - generic [ref=e564]: ·
+                  - generic [ref=e565]: Bank of Baroda
+                  - generic [ref=e566]: ·
+                  - generic [ref=e567]: "ID: 1-49203918"
+                - generic [ref=e568]: Deccan Institute of Pharmaceutical Sciences
+                - generic [ref=e569]:
+                  - generic [ref=e570]: Pharmacy
+                  - generic [ref=e571]: ·
+                  - generic [ref=e572]: Southern (Chennai)
+                  - generic [ref=e573]: ·
+                  - generic [ref=e574]: ₹30,00,000
+              - generic [ref=e575]:
+                - generic [ref=e576]:
+                  - text: Discrepancy
+                  - generic [ref=e577]: Bank mismatch
+                - button "Inspect" [ref=e578]
+        - generic [ref=e579]:
+          - generic [ref=e580]:
+            - heading "Maturity Horizon Radar" [level=3] [ref=e581]
+            - paragraph [ref=e582]: Automated 90-60-30 day statutory intimation ladder
+            - generic [ref=e583]:
+              - generic [ref=e584]:
+                - generic [ref=e585]:
+                  - generic [ref=e586]: Matured & Overdue
+                  - generic [ref=e587]: 2 Instruments
+                - generic [ref=e588]: "Value: ₹40.00 Lakhs"
+              - generic [ref=e589]:
+                - generic [ref=e590]:
+                  - generic [ref=e591]: Expiring within 30 Days
+                  - generic [ref=e592]: 2 Instruments
+                - generic [ref=e593]: "Value: ₹43.00 Lakhs"
+              - generic [ref=e594]:
+                - generic [ref=e595]:
+                  - generic [ref=e596]: Expiring in 31 - 60 Days
+                  - generic [ref=e597]: 1 Instruments
+                - generic [ref=e598]: "Value: ₹28.00 Lakhs"
+              - generic [ref=e599]:
+                - generic [ref=e600]:
+                  - generic [ref=e601]: Safe Horizon (>60 Days)
+                  - generic [ref=e602]: 9 Instruments
+                - generic [ref=e603]: Under active lien in designated scheduled banks
+          - button "Launch Maturity & Renewal Management" [ref=e605]
+      - generic [ref=e610]:
+        - generic [ref=e611]:
+          - generic [ref=e612]:
+            - generic [ref=e613]:
+              - heading "Scheduled Commercial Bank Distribution" [level=3] [ref=e614]
+              - paragraph [ref=e615]: Deposit concentration across authorized RBI scheduled banks
+            - generic [ref=e616]: 7 Banks
+          - generic [ref=e617]:
+            - generic [ref=e618]:
+              - generic [ref=e619]:
+                - generic [ref=e620]: State Bank of India
+                - generic [ref=e621]: 4 FDRs · 37% of total custody portfolio
+              - generic [ref=e622]: ₹1,20,00,000
+            - generic [ref=e624]:
+              - generic [ref=e625]:
+                - generic [ref=e626]: HDFC Bank
+                - generic [ref=e627]: 2 FDRs · 11% of total custody portfolio
+              - generic [ref=e628]: ₹35,00,000
+            - generic [ref=e630]:
+              - generic [ref=e631]:
+                - generic [ref=e632]: Punjab National Bank
+                - generic [ref=e633]: 3 FDRs · 18% of total custody portfolio
+              - generic [ref=e634]: ₹58,00,000
+            - generic [ref=e636]:
+              - generic [ref=e637]:
+                - generic [ref=e638]: Bank of Baroda
+                - generic [ref=e639]: 2 FDRs · 13% of total custody portfolio
+              - generic [ref=e640]: ₹42,00,000
+            - generic [ref=e642]:
+              - generic [ref=e643]:
+                - generic [ref=e644]: Canara Bank
+                - generic [ref=e645]: 1 FDRs · 8% of total custody portfolio
+              - generic [ref=e646]: ₹25,00,000
+            - generic [ref=e648]:
+              - generic [ref=e649]:
+                - generic [ref=e650]: Indian Bank
+                - generic [ref=e651]: 1 FDRs · 9% of total custody portfolio
+              - generic [ref=e652]: ₹28,00,000
+            - generic [ref=e654]:
+              - generic [ref=e655]:
+                - generic [ref=e656]: Axis Bank
+                - generic [ref=e657]: 1 FDRs · 5% of total custody portfolio
+              - generic [ref=e658]: ₹15,00,000
+        - generic [ref=e660]:
+          - generic [ref=e661]:
+            - generic [ref=e662]:
+              - heading "AICTE Regional Office Jurisdiction" [level=3] [ref=e663]
+              - paragraph [ref=e664]: Custodial oversight partitioned by regional bureau offices
+            - generic [ref=e665]: 7 Regions
+          - generic [ref=e666]:
+            - generic [ref=e667]:
+              - generic [ref=e668]:
+                - generic [ref=e669]: Western (Mumbai)
+                - generic [ref=e670]: 4 technical institutions monitored
+              - generic [ref=e671]: ₹80,00,000
+            - generic [ref=e673]:
+              - generic [ref=e674]:
+                - generic [ref=e675]: Northern (Kanpur)
+                - generic [ref=e676]: 3 technical institutions monitored
+              - generic [ref=e677]: ₹85,00,000
+            - generic [ref=e679]:
+              - generic [ref=e680]:
+                - generic [ref=e681]: North-Western (Chandigarh)
+                - generic [ref=e682]: 1 technical institutions monitored
+              - generic [ref=e683]: ₹8,00,000
+            - generic [ref=e685]:
+              - generic [ref=e686]:
+                - generic [ref=e687]: Central (Bhopal)
+                - generic [ref=e688]: 2 technical institutions monitored
+              - generic [ref=e689]: ₹52,00,000
+            - generic [ref=e691]:
+              - generic [ref=e692]:
+                - generic [ref=e693]: South-Western (Bengaluru)
+                - generic [ref=e694]: 1 technical institutions monitored
+              - generic [ref=e695]: ₹25,00,000
+            - generic [ref=e697]:
+              - generic [ref=e698]:
+                - generic [ref=e699]: Southern (Chennai)
+                - generic [ref=e700]: 2 technical institutions monitored
+              - generic [ref=e701]: ₹58,00,000
+            - generic [ref=e703]:
+              - generic [ref=e704]:
+                - generic [ref=e705]: Eastern (Kolkata)
+                - generic [ref=e706]: 1 technical institutions monitored
+              - generic [ref=e707]: ₹15,00,000
+  - contentinfo [ref=e709]:
+    - generic [ref=e710]:
+      - generic [ref=e711]:
+        - generic [ref=e712]: All India Council for Technical Education (AICTE) · Regulation Bureau
+        - generic [ref=e713]: Nelson Mandela Marg, Vasant Kunj, New Delhi - 110070 · National Security Deposit & FDR Repository
+      - generic [ref=e714]:
+        - generic [ref=e715]: APH Regulations 2024-27
+        - generic [ref=e716]: ·
+        - generic [ref=e717]: Finacle / BaNCS Core Banking Integration
+        - generic [ref=e718]: ·
+        - generic [ref=e719]: NIC e-Governance Standard
