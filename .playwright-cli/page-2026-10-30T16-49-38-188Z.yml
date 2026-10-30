@@ -1,0 +1,192 @@
+- generic [ref=e3]:
+  - banner [ref=e8]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: AICTE
+        - generic [ref=e14]:
+          - generic [ref=e15]: अखिल भारतीय तकनीकी शिक्षा परिषद · Ministry of Education, Govt. of India
+          - generic [ref=e16]:
+            - generic [ref=e17]: Security Deposit & FDR Management Portal
+            - generic [ref=e18]: APH 2024-27 Live
+      - generic [ref=e19]:
+        - link "Public Verification" [ref=e20] [cursor=pointer]:
+          - /url: "#verify-section"
+        - button "Portal Login" [ref=e25] [cursor=pointer]
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e34]: "AICTE Regulation Bureau · Problem Statement #26265"
+      - heading "Streamlining Security Deposits & Fixed Deposit Receipts for Technical Institutions" [level=1] [ref=e38]
+      - paragraph [ref=e39]: A unified, tamper-evident digital architecture for the submission, Finacle/BaNCS CBS verification, automated 10-year lock-in surveillance, renewal tracking, and statutory release of institutional security deposits.
+      - generic [ref=e40]:
+        - button "Access Stakeholder Desk" [ref=e41] [cursor=pointer]
+        - link "Verify FDR Record" [ref=e48] [cursor=pointer]:
+          - /url: "#verify-section"
+        - button "View APH 2024-27 Norms" [ref=e53]
+      - generic [ref=e58]:
+        - generic [ref=e59]: Joint Lien with AICTE Member Secretary
+        - generic [ref=e64]: Core Banking CBS Probing
+        - generic [ref=e69]: 10-Year Statutory Lock-in Tracker
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - heading "Stakeholder Gateway" [level=3] [ref=e78]
+          - paragraph [ref=e79]: Select your authorized regulatory portal role
+        - generic [ref=e80]: 🔒 Sign-in Required
+      - generic [ref=e81]:
+        - 'button "AICTE Central Bureau Statutory Regulator National Headquarters, New Delhi Login ID: director.regulation@aicte-india.org · Click to Sign In →" [active] [ref=e82] [cursor=pointer]':
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - generic [ref=e89]: AICTE Central Bureau
+              - generic [ref=e90]: Statutory Regulator
+            - paragraph [ref=e91]: National Headquarters, New Delhi
+            - generic [ref=e92]: "Login ID: director.regulation@aicte-india.org · Click to Sign In →"
+        - 'button "Regional Scrutiny Officer Regional Jurisdiction Northern Region (Kanpur) Login ID: ro.northern@aicte-india.org · Click to Sign In →" [ref=e96] [cursor=pointer]':
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: Regional Scrutiny Officer
+              - generic [ref=e105]: Regional Jurisdiction
+            - paragraph [ref=e106]: Northern Region (Kanpur)
+            - generic [ref=e107]: "Login ID: ro.northern@aicte-india.org · Click to Sign In →"
+        - 'button "Institution Representative / Principal Approved Institution Permanent ID: 1-458921102 Login ID: principal@techno-inst.edu.in · Click to Sign In →" [ref=e111] [cursor=pointer]':
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e119]: Institution Representative / Principal
+              - generic [ref=e120]: Approved Institution
+            - paragraph [ref=e121]: "Permanent ID: 1-458921102"
+            - generic [ref=e122]: "Login ID: principal@techno-inst.edu.in · Click to Sign In →"
+        - 'button "Scheduled Bank Officer (CBS Nodal) Scheduled Bank Desk Treasury & Institutional Banking Login ID: nodal.cbs@sbi.co.in · Click to Sign In →" [ref=e126] [cursor=pointer]':
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: Scheduled Bank Officer (CBS Nodal)
+              - generic [ref=e133]: Scheduled Bank Desk
+            - paragraph [ref=e134]: Treasury & Institutional Banking
+            - generic [ref=e135]: "Login ID: nodal.cbs@sbi.co.in · Click to Sign In →"
+      - generic [ref=e139]:
+        - generic [ref=e140]: Need specific credentials?
+        - button "Custom Login Form" [ref=e141] [cursor=pointer]
+  - generic [ref=e147]:
+    - generic [ref=e148]:
+      - generic [ref=e149]: ₹288.40 Cr
+      - generic [ref=e150]: Total Custodial Guarantee
+    - generic [ref=e151]:
+      - generic [ref=e152]: 10,480+
+      - generic [ref=e153]: Approved Technical Institutes
+    - generic [ref=e154]:
+      - generic [ref=e155]: "34"
+      - generic [ref=e156]: Scheduled Commercial Banks
+    - generic [ref=e157]:
+      - generic [ref=e158]: 100%
+      - generic [ref=e159]: CBS Lien Verification Compliance
+  - generic [ref=e161]:
+    - generic [ref=e162]:
+      - heading "Statutory Capabilities · AICTE Regulation Bureau" [level=2] [ref=e163]
+      - heading "End-to-End Governance Across the Entire FDR Lifecycle" [level=3] [ref=e164]
+      - paragraph [ref=e165]: Replacing fragmented paper records and manual correspondence with an integrated regulatory infrastructure.
+    - generic [ref=e166]:
+      - generic [ref=e167]:
+        - heading "Centralized Deposit Repository" [level=4] [ref=e173]
+        - paragraph [ref=e174]: Institution-wise and instrument-wise digital records with joint-name custody details, issuing bank branches, IFSC, deposit terms, and permanent institute IDs.
+      - generic [ref=e175]:
+        - heading "Core Banking CBS Verification" [level=4] [ref=e179]
+        - paragraph [ref=e180]: Real-time API cross-referencing against Finacle and BaNCS to confirm genuine deposit creation, non-encumbrance status, and lien markings in favor of AICTE.
+      - generic [ref=e181]:
+        - heading "Automated Maturity Radar" [level=4] [ref=e186]
+        - paragraph [ref=e187]: Pre-emptive notification ladder dispatching alerts at 90, 60, 30, and 15 days before maturity to prevent unauthorized bank auto-liquidations.
+      - generic [ref=e188]:
+        - heading "Renewal & Replacement Tracking" [level=4] [ref=e194]
+        - paragraph [ref=e195]: Seamless linking of rollover FDRs, preserving chronological parent-child audit trails, updated interest rate records, and revised maturity milestones.
+      - generic [ref=e196]:
+        - heading "Statutory Release & Refund" [level=4] [ref=e201]
+        - paragraph [ref=e202]: Rigorous 10-year lock-in fulfillment check, autonomous APH condition verification, regional scrutiny clearance, and digitally authorized discharge letters.
+      - generic [ref=e203]:
+        - heading "APH Norms & Scrutiny Engine" [level=4] [ref=e208]
+        - paragraph [ref=e209]: Automated deposit calculation for new colleges, seat expansions, minority concessions, and women's colleges with instant AICTE formula validation.
+  - generic [ref=e212]:
+    - generic [ref=e218]:
+      - heading "Public FDR Verification & Status Inquiry" [level=3] [ref=e219]
+      - paragraph [ref=e220]: Check the registration, bank lien status, and regulatory validity of an institutional FDR
+    - generic [ref=e221]:
+      - textbox "Enter FDR Number (e.g. FDR-SBI-2024-8841) or Institute ID (e.g. 1-458921102)" [ref=e223]
+      - button "Query Status" [ref=e227] [cursor=pointer]
+    - generic [ref=e228]:
+      - generic [ref=e229]: "Quick test inputs:"
+      - button "FDR-SBI-2024-8841" [ref=e230] [cursor=pointer]
+      - generic [ref=e231]: ·
+      - button "FDR-PNB-2023-4109" [ref=e232] [cursor=pointer]
+      - generic [ref=e233]: ·
+      - button "1-458921102" [ref=e234] [cursor=pointer]
+  - generic [ref=e236]:
+    - paragraph [ref=e237]: Authorized Integration with Major Scheduled Commercial Banks
+    - generic [ref=e238]:
+      - generic [ref=e239]: State Bank of India (SBI)
+      - generic [ref=e240]: Punjab National Bank (PNB)
+      - generic [ref=e241]: Canara Bank
+      - generic [ref=e242]: Bank of Baroda
+      - generic [ref=e243]: Union Bank of India
+      - generic [ref=e244]: HDFC Bank (Institutional)
+      - generic [ref=e245]: ICICI Bank
+  - contentinfo [ref=e246]:
+    - generic [ref=e247]:
+      - generic [ref=e248]:
+        - generic [ref=e249]:
+          - generic [ref=e250]: All India Council for Technical Education (AICTE)
+          - paragraph [ref=e251]: Statutory body under Department of Higher Education, Ministry of Education, Government of India. Nelson Mandela Marg, Vasant Kunj, New Delhi - 110070.
+        - generic [ref=e252]:
+          - generic [ref=e253]: Regulatory Authority
+          - list [ref=e254]:
+            - listitem [ref=e255]: AICTE Approval Process Handbook (APH) 2024-27
+            - listitem [ref=e256]: Joint Lien Custody Regulations
+            - listitem [ref=e257]: Core Banking System (Finacle / BaNCS) Direct Verification
+            - listitem [ref=e258]: National Informatics Centre (NIC) Compliance
+        - generic [ref=e259]:
+          - generic [ref=e260]: Technical Assistance
+          - paragraph [ref=e261]: "FDR Support Desk: 011-29581000 / 29581050Email: helpdesk-fdr@aicte-india.orgWorking Hours: 09:30 AM to 05:30 PM (Mon-Fri)"
+      - generic [ref=e262]:
+        - generic [ref=e263]: © 2026 AICTE Regulation Bureau · Government of India
+        - generic [ref=e264]:
+          - generic [ref=e265]: NIC Guidelines
+          - generic [ref=e266]: ·
+          - generic [ref=e267]: Terms of Service
+          - generic [ref=e268]: ·
+          - generic [ref=e269]: Security Policy
+  - generic [ref=e271]:
+    - generic [ref=e272]:
+      - generic [ref=e273]:
+        - generic [ref=e274]: AICTE
+        - generic [ref=e275]:
+          - heading "Official Portal Login" [level=3] [ref=e276]
+          - paragraph [ref=e277]: Select your stakeholder role to access your designated workspace
+      - button [ref=e278] [cursor=pointer]
+    - generic [ref=e282]:
+      - generic [ref=e283]:
+        - generic [ref=e284]: 1. Select Stakeholder Role
+        - generic [ref=e285]:
+          - button "AICTE Central Bureau Statutory Regulator" [ref=e286] [cursor=pointer]:
+            - generic [ref=e291]:
+              - generic [ref=e292]: AICTE Central Bureau
+              - generic [ref=e293]: Statutory Regulator
+          - button "Regional Scrutiny Officer Regional Jurisdiction" [ref=e294] [cursor=pointer]:
+            - generic [ref=e300]:
+              - generic [ref=e301]: Regional Scrutiny Officer
+              - generic [ref=e302]: Regional Jurisdiction
+          - button "Institution Representative / Principal Approved Institution" [ref=e303] [cursor=pointer]:
+            - generic [ref=e309]:
+              - generic [ref=e310]: Institution Representative / Principal
+              - generic [ref=e311]: Approved Institution
+          - button "Scheduled Bank Officer (CBS Nodal) Scheduled Bank Desk" [ref=e312] [cursor=pointer]:
+            - generic [ref=e316]:
+              - generic [ref=e317]: Scheduled Bank Officer (CBS Nodal)
+              - generic [ref=e318]: Scheduled Bank Desk
+      - generic [ref=e319]:
+        - generic [ref=e320]:
+          - generic [ref=e321]: Official Email / Government ID *
+          - textbox [ref=e322]: director.regulation@aicte-india.org
+        - generic [ref=e323]:
+          - generic [ref=e324]:
+            - generic [ref=e325]: Security Password *
+            - button "Fill Demo Password (aicte@2026)" [ref=e326] [cursor=pointer]
+          - textbox "Enter password to authenticate" [ref=e327]
+          - paragraph [ref=e328]: Authentication required. Enter your password to access the AICTE Central Bureau workspace.
+        - button "Sign In as AICTE Central Bureau" [ref=e330] [cursor=pointer]
+      - generic [ref=e335]: Or Sign In via Google
+      - button "Sign in with Google Account" [ref=e338] [cursor=pointer]

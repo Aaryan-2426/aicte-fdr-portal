@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FDRRecord, InstituteCategory, AICTERegion } from '../types/fdr';
 import {
   calculateAPHNormRequiredFDR,
@@ -20,6 +20,13 @@ import {
   Scan,
   FileSearch,
   CheckCheck,
+  Eye,
+  Trash2,
+  Download,
+  RefreshCw,
+  AlertCircle,
+  X,
+  FileCheck,
 } from 'lucide-react';
 
 interface FDRSubmissionDeskProps {
@@ -61,10 +68,190 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
   const [lienMarked, setLienMarked] = useState<boolean>(true);
   const [autoRenewal, setAutoRenewal] = useState<boolean>(true);
 
-  // Uploaded docs simulation
-  const [uploadedFDRCert, setUploadedFDRCert] = useState<string>('FDR_SBI_Receipt_778901.pdf');
-  const [uploadedLienDoc, setUploadedLienDoc] = useState<string>('SBI_Bank_Lien_Letter_To_AICTE.pdf');
-  const [uploadedResolution, setUploadedResolution] = useState<string>('Board_Resolution_Security_Deposit.pdf');
+  // Real Uploaded Supporting Documents State - All initially null (Not Uploaded)
+  const [documents, setDocuments] = useState<Record<string, {
+    id: string;
+    type: 'fdr_certificate' | 'lien_endorsement' | 'board_resolution';
+    title: string;
+    fileName: string;
+    storedFileName?: string;
+    fileSize: string;
+    fileSizeBytes: number;
+    uploadedAt: string;
+    storageUrl: string;
+    dataBase64?: string;
+  } | null>>(() => {
+    try {
+      const saved = sessionStorage.getItem('aicte_draft_documents');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return {
+      fdr_certificate: null,
+      lien_endorsement: null,
+      board_resolution: null,
+    };
+  });
+
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string | null>>({});
+  const [scrutinyError, setScrutinyError] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<{
+    title: string;
+    fileName: string;
+    fileSize: string;
+    storageUrl: string;
+    dataBase64?: string;
+  } | null>(null);
+
+  // Sync to sessionStorage for persistent draft state across refreshes
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('aicte_draft_documents', JSON.stringify(documents));
+    } catch {
+      // safe fallback
+    }
+  }, [documents]);
+
+  // Real Document Upload Handler with strict validation (PDF only, max 10MB, non-empty)
+  const handleFileSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    docType: 'fdr_certificate' | 'lien_endorsement' | 'board_resolution'
+  ) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // Reset input to allow re-selection
+
+    if (!file) return;
+
+    // 1. Validate file format: PDF only
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setUploadErrors((prev) => ({
+        ...prev,
+        [docType]: 'Invalid file format: Only PDF documents (.pdf) are permitted under AICTE APH regulations.',
+      }));
+      return;
+    }
+
+    // 2. Validate empty file
+    if (file.size === 0) {
+      setUploadErrors((prev) => ({
+        ...prev,
+        [docType]: 'Invalid file: Selected document is empty (0 bytes).',
+      }));
+      return;
+    }
+
+    // 3. Validate maximum size (10 MB limit)
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setUploadErrors((prev) => ({
+        ...prev,
+        [docType]: `File exceeds maximum allowed size of 10 MB (Selected: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
+      }));
+      return;
+    }
+
+    // Clear errors and start upload
+    setUploadErrors((prev) => ({ ...prev, [docType]: null }));
+    setScrutinyError(null);
+    setUploadingDocType(docType);
+    setUploadProgress((prev) => ({ ...prev, [docType]: 20 }));
+
+    try {
+      // Read file into Base64
+      const reader = new FileReader();
+      const fileData = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      setUploadProgress((prev) => ({ ...prev, [docType]: 65 }));
+
+      // Send to backend storage API
+      const res = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          docType,
+          fileName: file.name,
+          fileData,
+          applicationId: aicteApplicationNo,
+          fdrNumber,
+        }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Server rejected file upload');
+      }
+
+      const result = await res.json();
+      setUploadProgress((prev) => ({ ...prev, [docType]: 100 }));
+
+      // Save real document record
+      setDocuments((prev) => ({
+        ...prev,
+        [docType]: {
+          ...result.document,
+          dataBase64: fileData,
+        },
+      }));
+    } catch (err: any) {
+      console.error('Document upload error:', err);
+      setUploadErrors((prev) => ({
+        ...prev,
+        [docType]: err.message || 'Upload failed. Please try again.',
+      }));
+    } finally {
+      setUploadingDocType(null);
+    }
+  };
+
+  // Remove document handler
+  const handleRemoveDocument = async (docType: string) => {
+    const docToRemove = documents[docType];
+    if (docToRemove?.storedFileName) {
+      try {
+        await fetch('/api/documents/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ storedFileName: docToRemove.storedFileName }),
+        });
+      } catch {
+        // safe fallback
+      }
+    }
+    setDocuments((prev) => ({ ...prev, [docType]: null }));
+    setUploadErrors((prev) => ({ ...prev, [docType]: null }));
+    setScrutinyError(null);
+  };
+
+  // Helper: Generate real valid sample PDF in-memory for testing if user has no local PDF
+  const handleGenerateSamplePdf = async (docType: 'fdr_certificate' | 'lien_endorsement' | 'board_resolution') => {
+    const titles: Record<string, string> = {
+      fdr_certificate: `${instituteName.slice(0, 15).replace(/\s+/g, '_')}_Original_FDR.pdf`,
+      lien_endorsement: `${bankName.slice(0, 3).toUpperCase()}_Lien_Letter_AICTE.pdf`,
+      board_resolution: `Trust_Board_Resolution_${new Date().getFullYear()}.pdf`,
+    };
+    const sampleFileName = titles[docType];
+    const pdfRaw = `%PDF-1.4\n1 0 obj\n<< /Title (${sampleFileName}) /Author (AICTE Regulation Bureau) /Creator (AICTE Security Deposit Portal) >>\nendobj\n2 0 obj\n<< /Type /Catalog /Pages 3 0 R >>\nendobj\n3 0 obj\n<< /Type /Pages /Kids [4 0 R] /Count 1 >>\nendobj\n4 0 obj\n<< /Type /Page /Parent 3 0 R /MediaBox [0 0 612 792] /Contents 5 0 R >>\nendobj\n5 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 14 Tf\n50 720 Td\n(AICTE Regulation Bureau - Mandatory Security Deposit Document: ${docType}) Tj\nET\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f\n0000000009 00000 n\n0000000130 00000 n\n0000000177 00000 n\n0000000234 00000 n\n0000000319 00000 n\ntrailer\n<< /Size 6 /Root 2 0 R >>\nstartxref\n490\n%%EOF`;
+    const blob = new Blob([pdfRaw], { type: 'application/pdf' });
+    const file = new File([blob], sampleFileName, { type: 'application/pdf' });
+
+    // Mock an event to pass to handleFileSelect
+    const fakeEvent = {
+      target: {
+        files: [file],
+        value: '',
+      },
+    } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+    await handleFileSelect(fakeEvent, docType);
+  };
 
   // Submission result state
   const [submissionComplete, setSubmissionComplete] = useState<boolean>(false);
@@ -178,6 +365,27 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
 
   const handleNextToStep4 = (e: React.FormEvent) => {
     e.preventDefault();
+    setScrutinyError(null);
+
+    // Strictly enforce all 3 mandatory statutory documents
+    const missing: string[] = [];
+    if (!documents.fdr_certificate) {
+      missing.push('1. Original FDR Fixed Deposit Certificate');
+    }
+    if (!documents.lien_endorsement) {
+      missing.push('2. Bank Lien Endorsement Letter to AICTE');
+    }
+    if (!documents.board_resolution) {
+      missing.push('3. Governing Body / Trust Board Resolution');
+    }
+
+    if (missing.length > 0) {
+      setScrutinyError(
+        `Pre-Submission Scrutiny Blocked: All 3 mandatory statutory documents must be uploaded and verified before proceeding to Step 4.\n\nMissing documents:\n• ${missing.join('\n• ')}`
+      );
+      return;
+    }
+
     // Pre-submission discrepancy scrutiny
     const discrepancies = detectFDRDiscrepancies({
       fdrAmount,
@@ -191,6 +399,23 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
   };
 
   const handleFinalSubmit = () => {
+    const realSupportingDocs = [
+      documents.fdr_certificate,
+      documents.lien_endorsement,
+      documents.board_resolution,
+    ]
+      .filter(Boolean)
+      .map((doc) => ({
+        id: doc!.id,
+        title: doc!.title,
+        type: doc!.type,
+        fileName: doc!.fileName,
+        uploadedAt: doc!.uploadedAt,
+        fileSize: doc!.fileSize,
+        verified: false,
+        docUrl: doc!.storageUrl,
+      }));
+
     const newRecord: FDRRecord = {
       id: `fdr-${Date.now()}`,
       aicteApplicationNo,
@@ -217,46 +442,24 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
       status: detectedDiscrepancies.length > 0 ? 'discrepant' : 'under_scrutiny',
       verificationSource: detectedDiscrepancies.length > 0 ? 'discrepancy_flagged' : 'institution_submitted',
       discrepancyReasons: detectedDiscrepancies.length > 0 ? detectedDiscrepancies : undefined,
-      supportingDocuments: [
-        {
-          id: `doc-${Date.now()}-1`,
-          title: 'Original FDR Fixed Deposit Certificate',
-          type: 'fdr_certificate',
-          fileName: uploadedFDRCert,
-          uploadedAt: '2026-10-30 11:45',
-          fileSize: '2.8 MB',
-          verified: false,
-        },
-        {
-          id: `doc-${Date.now()}-2`,
-          title: 'Bank Lien Endorsement Letter to Member Secretary, AICTE',
-          type: 'lien_endorsement',
-          fileName: uploadedLienDoc,
-          uploadedAt: '2026-10-30 11:46',
-          fileSize: '1.4 MB',
-          verified: false,
-        },
-        {
-          id: `doc-${Date.now()}-3`,
-          title: 'Governing Board Resolution for Joint Deposit',
-          type: 'board_resolution',
-          fileName: uploadedResolution,
-          uploadedAt: '2026-10-30 11:47',
-          fileSize: '950 KB',
-          verified: false,
-        },
-      ],
+      supportingDocuments: realSupportingDocs,
       auditTrail: [
         {
           id: `aud-${Date.now()}`,
-          timestamp: '2026-10-30 11:48',
+          timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
           action: 'Online Digital Deposit Submission',
           userRole: 'Institute Principal',
           userName: 'Authorized Representative',
-          details: `Submitted new FDR #${fdrNumber} for ${formatINR(fdrAmount)}. Statutory verification queued.`,
+          details: `Submitted new FDR #${fdrNumber} for ${formatINR(fdrAmount)} with ${realSupportingDocs.length} verified PDF documents.`,
         },
       ],
     };
+
+    try {
+      sessionStorage.removeItem('aicte_draft_documents');
+    } catch {
+      // safe fallback
+    }
 
     onSubmitFDR(newRecord);
     setSubmissionComplete(true);
@@ -857,75 +1060,244 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
             </form>
           )}
 
-          {/* STEP 3: Digital Documents */}
+          {/* STEP 3: Real Digital Documents Upload */}
           {currentStep === 3 && (
             <form onSubmit={handleNextToStep4} className="space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-slate-900">Step 3: Upload Supporting Documents</h3>
-                <p className="text-xs text-slate-500">
-                  Upload PDF scans of the original FDR, Bank Lien confirmation letter, and Trust Board resolution.
-                </p>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                {/* FDR Certificate */}
-                <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-slate-600" />
-                    <div>
-                      <div className="font-semibold text-slate-900">Original FDR Certificate *</div>
-                      <div className="text-[11px] text-slate-500">{uploadedFDRCert} · 2.8 MB</div>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
-                    Uploaded
-                  </span>
+              <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Step 3: Upload Supporting Documents</h3>
+                  <p className="text-xs text-slate-500">
+                    All 3 statutory documents below are mandatory under AICTE APH regulations. Only PDF files up to 10 MB are accepted.
+                  </p>
                 </div>
-
-                {/* Lien Letter */}
-                <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-slate-600" />
-                    <div>
-                      <div className="font-semibold text-slate-900">
-                        Bank Lien Endorsement Letter to AICTE *
-                      </div>
-                      <div className="text-[11px] text-slate-500">{uploadedLienDoc} · 1.4 MB</div>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
-                    Uploaded
-                  </span>
-                </div>
-
-                {/* Board Resolution */}
-                <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-slate-600" />
-                    <div>
-                      <div className="font-semibold text-slate-900">
-                        Governing Body / Trust Resolution *
-                      </div>
-                      <div className="text-[11px] text-slate-500">{uploadedResolution} · 950 KB</div>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
-                    Uploaded
+                <div className="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+                  <span>Upload Status: </span>
+                  <span className={Object.values(documents).filter(Boolean).length === 3 ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>
+                    {Object.values(documents).filter(Boolean).length} / 3 Completed
                   </span>
                 </div>
               </div>
 
-              <div className="pt-3 flex justify-between">
+              {/* Scrutiny Blocking Error Banner */}
+              {scrutinyError && (
+                <div className="p-3.5 bg-rose-50 border-2 border-rose-300 rounded-xl text-xs text-rose-900 space-y-1 animate-in fade-in duration-200">
+                  <div className="font-bold flex items-center gap-1.5 text-rose-950 text-sm">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Pre-Submission Scrutiny Blocked</span>
+                  </div>
+                  <p className="whitespace-pre-line text-rose-800 text-xs pl-5.5">
+                    {scrutinyError}
+                  </p>
+                </div>
+              )}
+
+              {/* Document Slots */}
+              <div className="space-y-3.5 text-xs">
+                {[
+                  {
+                    key: 'fdr_certificate' as const,
+                    title: '1. Original FDR Fixed Deposit Certificate *',
+                    desc: 'Original deposit certificate scan from Scheduled Commercial Bank certifying principal & joint name.',
+                    icon: <FileText className="w-5 h-5 text-amber-600" />,
+                  },
+                  {
+                    key: 'lien_endorsement' as const,
+                    title: '2. Bank Lien Endorsement Letter to Member Secretary, AICTE *',
+                    desc: 'Official bank undertaking certifying exclusive lien marked to AICTE with non-encashment clause.',
+                    icon: <Landmark className="w-5 h-5 text-blue-600" />,
+                  },
+                  {
+                    key: 'board_resolution' as const,
+                    title: '3. Governing Body / Trust Board Resolution *',
+                    desc: 'Certified resolution of the sponsoring Trust/Society approving FDR creation for AICTE approval.',
+                    icon: <Building className="w-5 h-5 text-purple-600" />,
+                  },
+                ].map((docConfig) => {
+                  const doc = documents[docConfig.key];
+                  const isUploading = uploadingDocType === docConfig.key;
+                  const docError = uploadErrors[docConfig.key];
+
+                  return (
+                    <div
+                      key={docConfig.key}
+                      className={`p-3.5 border rounded-xl transition-all ${
+                        doc
+                          ? 'border-emerald-300 bg-emerald-50/40 shadow-2xs'
+                          : docError
+                          ? 'border-rose-300 bg-rose-50/30'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        {/* Document Info */}
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className={`p-2 rounded-lg shrink-0 ${doc ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100'}`}>
+                            {doc ? <FileCheck className="w-5 h-5 text-emerald-700" /> : docConfig.icon}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                              <span>{docConfig.title}</span>
+                              {doc ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                  ✓ Uploaded & Stored
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                  Not Uploaded
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                              {docConfig.desc}
+                            </p>
+
+                            {/* Uploaded File Metadata */}
+                            {doc && (
+                              <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-medium text-slate-700 bg-white/80 p-1.5 px-2.5 rounded border border-emerald-200 w-fit">
+                                <span className="font-semibold text-slate-900 flex items-center gap-1">
+                                  📄 {doc.fileName}
+                                </span>
+                                <span className="text-slate-300">·</span>
+                                <span className="font-mono text-slate-600">{doc.fileSize}</span>
+                                <span className="text-slate-300">·</span>
+                                <span className="text-slate-500 text-[10px]">Saved: {doc.uploadedAt}</span>
+                              </div>
+                            )}
+
+                            {/* Error message */}
+                            {docError && (
+                              <div className="mt-2 text-rose-700 flex items-center gap-1.5 text-[11px] font-medium">
+                                <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-600" />
+                                <span>{docError}</span>
+                              </div>
+                            )}
+
+                            {/* Upload Progress Bar */}
+                            {isUploading && (
+                              <div className="mt-2 space-y-1">
+                                <div className="flex items-center justify-between text-[10px] font-semibold text-slate-600">
+                                  <span>Validating & Storing PDF...</span>
+                                  <span>{uploadProgress[docConfig.key] || 45}%</span>
+                                </div>
+                                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                  <div
+                                    className="bg-blue-600 h-full transition-all duration-300"
+                                    style={{ width: `${uploadProgress[docConfig.key] || 45}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap items-center gap-2 shrink-0 self-start md:self-center">
+                          {doc ? (
+                            <>
+                              {/* Preview Button */}
+                              <button
+                                type="button"
+                                onClick={() => setPreviewDoc(doc)}
+                                className="px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Preview Uploaded PDF"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Preview</span>
+                              </button>
+
+                              {/* Download Button */}
+                              <a
+                                href={doc.storageUrl || doc.dataBase64}
+                                download={doc.fileName}
+                                className="px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Download Document"
+                              >
+                                <Download className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Download</span>
+                              </a>
+
+                              {/* Replace Button */}
+                              <label
+                                htmlFor={`file-replace-${docConfig.key}`}
+                                className="px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Replace with another PDF"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5 text-slate-600" />
+                                <span>Replace</span>
+                              </label>
+                              <input
+                                type="file"
+                                id={`file-replace-${docConfig.key}`}
+                                accept="application/pdf"
+                                onChange={(e) => handleFileSelect(e, docConfig.key)}
+                                className="hidden"
+                              />
+
+                              {/* Remove Button */}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveDocument(docConfig.key)}
+                                className="px-2.5 py-1.5 text-xs font-semibold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-lg shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+                                title="Remove Document"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Remove</span>
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              {/* Select PDF Input */}
+                              <label
+                                htmlFor={`file-upload-${docConfig.key}`}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-lg shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer ${
+                                  isUploading
+                                    ? 'bg-slate-400 text-white cursor-not-allowed'
+                                    : 'bg-slate-900 hover:bg-slate-800 text-white'
+                                }`}
+                              >
+                                <Upload className="w-3.5 h-3.5 text-amber-400" />
+                                <span>{isUploading ? 'Uploading...' : 'Select PDF File'}</span>
+                              </label>
+                              <input
+                                type="file"
+                                id={`file-upload-${docConfig.key}`}
+                                accept="application/pdf"
+                                disabled={isUploading}
+                                onChange={(e) => handleFileSelect(e, docConfig.key)}
+                                className="hidden"
+                              />
+
+                              {/* Quick Sample PDF generator for easy instant test on devices without local files */}
+                              <button
+                                type="button"
+                                onClick={() => handleGenerateSamplePdf(docConfig.key)}
+                                disabled={isUploading}
+                                className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                                title="Generates a valid AICTE test PDF and uploads it"
+                              >
+                                <span>Sample PDF</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Navigation Actions */}
+              <div className="pt-3 flex items-center justify-between border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50"
+                  className="px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Back to Step 2
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-2"
+                  className="px-5 py-2.5 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
                 >
                   <span>Run Pre-Submission Scrutiny</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1023,6 +1395,53 @@ export const FDRSubmissionDesk: React.FC<FDRSubmissionDeskProps> = ({ onSubmitFD
           )}
         </div>
       )}
+
+      {/* PDF Preview Modal */}
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-200">
+            {/* Modal Header */}
+            <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 bg-slate-800 rounded-lg text-amber-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-sm truncate">{previewDoc.title}</h3>
+                  <p className="text-xs text-slate-400 font-mono">{previewDoc.fileName} · {previewDoc.fileSize}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewDoc.storageUrl || previewDoc.dataBase64}
+                  download={previewDoc.fileName}
+                  className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDoc(null)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body / PDF Viewer */}
+            <div className="flex-1 bg-slate-100 p-4 overflow-hidden relative flex items-center justify-center min-h-[500px]">
+              <iframe
+                src={previewDoc.storageUrl || previewDoc.dataBase64}
+                title={previewDoc.title}
+                className="w-full h-full min-h-[500px] border-0 rounded-lg bg-white shadow-inner"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

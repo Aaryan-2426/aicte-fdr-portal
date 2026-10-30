@@ -170,6 +170,123 @@ app.post('/api/generate-video', async (req, res) => {
   }
 });
 
+// 4. Real FDR Supporting Document Upload & Validation API
+const UPLOAD_DIR = path.resolve(__dirname, 'public', 'uploads', 'fdr_documents');
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+app.post('/api/documents/upload', async (req, res) => {
+  try {
+    const { docType, fileName, fileData, applicationId, fdrNumber } = req.body;
+
+    if (!docType || !fileName || !fileData) {
+      return res.status(400).json({ error: 'Missing required fields: docType, fileName, or fileData' });
+    }
+
+    const cleanFileName = path.basename(fileName).replace(/[^a-zA-Z0-9._-]/g, '_');
+    if (!cleanFileName.toLowerCase().endsWith('.pdf')) {
+      return res.status(400).json({
+        error: 'Invalid file format: Only PDF documents (.pdf) are permitted under AICTE APH regulations.',
+      });
+    }
+
+    // Extract base64 buffer
+    const base64Data = fileData.replace(/^data:application\/pdf;base64,/, '').replace(/^data:.*?;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    if (buffer.length === 0) {
+      return res.status(400).json({ error: 'Invalid file: Document is empty (0 bytes).' });
+    }
+
+    // Max 10 MB limit
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (buffer.length > MAX_SIZE) {
+      return res.status(400).json({
+        error: `File size exceeds maximum permitted limit of 10 MB (Selected file: ${(buffer.length / (1024 * 1024)).toFixed(2)} MB).`,
+      });
+    }
+
+    // Verify PDF signature (%PDF-)
+    const pdfHeader = buffer.subarray(0, 5).toString('ascii');
+    if (!pdfHeader.startsWith('%PDF')) {
+      return res.status(400).json({
+        error: 'File validation failed: File content does not contain a valid PDF structure.',
+      });
+    }
+
+    // Generate unique storage filename
+    const safeDocType = ['fdr_certificate', 'lien_endorsement', 'board_resolution'].includes(docType)
+      ? docType
+      : 'supporting_doc';
+    const timestamp = Date.now();
+    const storedFileName = `${safeDocType}_${timestamp}_${cleanFileName}`;
+    const storageFilePath = path.join(UPLOAD_DIR, storedFileName);
+
+    await fs.promises.writeFile(storageFilePath, buffer);
+
+    const docTitles: Record<string, string> = {
+      fdr_certificate: 'Original FDR Fixed Deposit Certificate',
+      lien_endorsement: 'Bank Lien Endorsement Letter to AICTE',
+      board_resolution: 'Governing Body / Trust Board Resolution',
+    };
+
+    const docRecord = {
+      id: `doc-${timestamp}-${Math.floor(Math.random() * 1000)}`,
+      title: docTitles[docType] || 'Supporting Document',
+      type: safeDocType,
+      fileName: cleanFileName,
+      storedFileName,
+      fileSize: formatBytes(buffer.length),
+      fileSizeBytes: buffer.length,
+      storageUrl: `/uploads/fdr_documents/${storedFileName}`,
+      storagePath: storageFilePath,
+      uploadedAt: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      verified: true,
+      applicationId: applicationId || '',
+      fdrNumber: fdrNumber || '',
+    };
+
+    return res.json({
+      success: true,
+      document: docRecord,
+      message: 'Document successfully validated and securely stored.',
+    });
+  } catch (error: any) {
+    console.error('Document upload error:', error);
+    return res.status(500).json({ error: error?.message || 'Document storage failed' });
+  }
+});
+
+app.delete('/api/documents/delete', async (req, res) => {
+  try {
+    const { storedFileName } = req.body;
+    if (!storedFileName) {
+      return res.status(400).json({ error: 'storedFileName is required' });
+    }
+
+    const safeName = path.basename(storedFileName);
+    const filePath = path.join(UPLOAD_DIR, safeName);
+
+    if (fs.existsSync(filePath)) {
+      await fs.promises.unlink(filePath);
+    }
+
+    return res.json({ success: true, message: 'Document removed from storage.' });
+  } catch (error: any) {
+    console.error('Document deletion error:', error);
+    return res.status(500).json({ error: error?.message || 'Document deletion failed' });
+  }
+});
+
 // Port configuration: inside AI Studio container Nginx listens on 8080 and proxies to 3000.
 // In standalone production environments (Render, Cloud Run standalone), PORT is used.
 const port = Number(
