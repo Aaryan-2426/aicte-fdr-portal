@@ -287,6 +287,72 @@ app.delete('/api/documents/delete', async (req, res) => {
   }
 });
 
+// 5. Backend FDR Maturity Period Validation Endpoint & Helper
+function validateBackendMaturityPeriod(issueDateStr: string, maturityDateStr: string, requiredYears: number = 10) {
+  if (!issueDateStr || !maturityDateStr) {
+    return { isValid: false, error: 'Issue date and maturity date are required.' };
+  }
+  const issueDate = new Date(issueDateStr);
+  const maturityDate = new Date(maturityDateStr);
+  if (isNaN(issueDate.getTime()) || isNaN(maturityDate.getTime())) {
+    return { isValid: false, error: 'Invalid date format.' };
+  }
+  const minMatDate = new Date(issueDate);
+  minMatDate.setFullYear(minMatDate.getFullYear() + requiredYears);
+
+  const matUtc = Date.UTC(maturityDate.getFullYear(), maturityDate.getMonth(), maturityDate.getDate());
+  const minMatUtc = Date.UTC(minMatDate.getFullYear(), minMatDate.getMonth(), minMatDate.getDate());
+  const minMatDateStr = minMatDate.toISOString().split('T')[0];
+
+  if (matUtc < minMatUtc) {
+    return {
+      isValid: false,
+      error: `Server Rejection: Maturity date (${maturityDateStr}) violates AICTE ${requiredYears}-year lock-in norm. Minimum permitted maturity date for issue date ${issueDateStr} is ${minMatDateStr}.`,
+    };
+  }
+  return { isValid: true };
+}
+
+app.post('/api/fdr/submit', (req, res) => {
+  try {
+    const { issueDate, maturityDate, fdrNumber, bankName, fdrAmount, lockInYears = 10 } = req.body;
+
+    const validation = validateBackendMaturityPeriod(issueDate, maturityDate, lockInYears);
+    if (!validation.isValid) {
+      return res.status(400).json({
+        success: false,
+        error: validation.error,
+        code: 'AICTE_APH_MATURITY_VIOLATION',
+      });
+    }
+
+    if (!fdrNumber || !bankName || !fdrAmount) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required FDR instrument parameters.',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'FDR submission successfully validated and recorded under AICTE APH regulations.',
+      record: {
+        fdrNumber,
+        bankName,
+        fdrAmount,
+        issueDate,
+        maturityDate,
+        lockInYears,
+        status: 'under_scrutiny',
+        verifiedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error: any) {
+    console.error('FDR submission validation error:', error);
+    return res.status(500).json({ success: false, error: error?.message || 'Server validation failed' });
+  }
+});
+
 // Port configuration: inside AI Studio container Nginx listens on 8080 and proxies to 3000.
 // In standalone production environments (Render, Cloud Run standalone), PORT is used.
 const port = Number(
