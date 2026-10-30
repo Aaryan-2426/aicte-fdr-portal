@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { User, onAuthStateChanged, signInWithPopup, signOut, signInAnonymously } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from '../lib/firebase';
 import { UserRole } from '../types/fdr';
@@ -94,8 +94,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     instituteName?: string
   ) => {
     try {
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+      } catch (authErr) {
+        console.warn('Anonymous auth note:', authErr);
+      }
+
       const profile: UserProfile = {
-        uid: `cred-${Date.now()}`,
+        uid: auth.currentUser?.uid || `cred-${Date.now()}`,
         email,
         displayName: displayName || email.split('@')[0].replace('.', ' ').toUpperCase(),
         role,

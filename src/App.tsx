@@ -43,6 +43,7 @@ export default function App() {
 
   // Firestore real-time sync: merge Firestore records with INITIAL_FDR_RECORDS (preserving seed/duplicate data)
   useEffect(() => {
+    if (!user) return;
     try {
       const recordsCol = collection(db, 'fdrRecords');
       const unsubscribe = onSnapshot(
@@ -70,7 +71,9 @@ export default function App() {
           }
         },
         (error) => {
-          console.warn('Firestore real-time sync notification:', error.message);
+          if (!error.message.includes('Missing or insufficient permissions')) {
+            console.warn('Firestore real-time sync notification:', error.message);
+          }
           // Fall back gracefully to local state
         }
       );
@@ -79,7 +82,7 @@ export default function App() {
     } catch (err) {
       console.warn('Firestore subscription initialized in offline mode:', err);
     }
-  }, []);
+  }, [user]);
 
   // Modal inspection states
   const [inspectedFDR, setInspectedFDR] = useState<FDRRecord | null>(null);
